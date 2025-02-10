@@ -3,7 +3,6 @@ import aiohttp.web
 
 async def start_server():
     app = aiohttp.web.Application()
-    # Initialization logic
     return app
 
 if __name__ == "__main__":
