@@ -3,4 +3,14 @@ Asynchronous SQL Server:  aiosql
 
 I need a Web Server that reads page_*.py files.
 These files are suppose to be very minimal and able to directly affect server.
+For example: able to list all pages, add new pages, remove pages and more.
+I would like that these pages would ideally not require import statements.
+The print("""Hello World""") statement should be main way to .
 
+
+
+
+Instead of trying to come up with a statement like show() or replacing print() it's better to use templates system. But I'm not sure.
+
+
+Concept: "Script-as-HTTP-Response" System
