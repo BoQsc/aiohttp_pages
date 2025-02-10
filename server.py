@@ -1,11 +1,11 @@
 # web_utils.py
-import aiohttp.web 
+from aiohttp import web
 
 async def start_server():
-    app = aiohttp.web.Application()
+    app = web.Application()
     return app
 
 if __name__ == "__main__":
 
-    aiohttp.web.run_app(start_server(), port=8000)
+    web.run_app(start_server(), port=8000)
 
