@@ -1,4 +1,3 @@
-# web_utils.py
 from aiohttp import web
 
 async def start_server():
