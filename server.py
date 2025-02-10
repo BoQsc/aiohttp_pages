@@ -6,6 +6,5 @@ async def start_server():
     return app
 
 if __name__ == "__main__":
-
     web.run_app(start_server(), port=8000)
 
