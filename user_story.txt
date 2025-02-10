@@ -1,30 +1,32 @@
-# server.py (main entry point)
-import asyncio
-from aiohttp import web
-import importlib
-import glob
+How bad of performance threadedhttp and other methods of python standard library versus aiohttp
 
-async def handle_dynamic(request):
-    page_name = request.match_info['page']
-    try:
-        module = importlib.import_module(f'pages.page_{page_name}')
-        content = await module.render(request)
-        return web.Response(text=content, content_type='text/html')
-    except ModuleNotFoundError:
-        return web.Response(status=404)
+Write streamlined example of aiohttp 
 
-async def list_routes(request):
-    pages = [f.stem.split('_')[1] for f in Path('pages').glob('page_*.py')]
-    html = "<h1>Available Pages:</h1><ul>"
-    for page in pages:
-        html += f'<li><a href="/{page}">{page}</a></li>'
-    return web.Response(text=html, content_type='text/html')
 
-def init_app():
-    app = web.Application()
-    app.router.add_get('/{page}', handle_dynamic)
-    app.router.add_get('/list', list_routes)
-    return app
+is import asyncio really needed? I want aiohttp only, but it's weird to have two imports 
 
-if __name__ == '__main__':
-    web.run_app(init_app())
+I think there is aiosql
+
+So what instead if High-concurrency writes 
+
+
+I want to be standard instead. Like if I use aiohttp I want to use aiosql to keep consistency. I want to start with something that would be easy to mirgrate from to scale better if a need appears.
+
+
+
+Let's say I want to setup where I could easily change and manage. I have idea of having web pages prefixed with page_somename and suffixed with .py and it would be like http://localhost/somename
+
+
+
+
+I would also want to have an example of a page that would create a new page on button click and also another page that would show all and list existing routes dynamically.
+
+I would also want an example that import parts into a page, consisting of multiple imported parts. Also it should list all pages in a basic navigation.
+
+I would expect page_.py files to consist of print(""""") and other statements. Listing of pages should be as simple as making a for loop. I do not like to have a requirement of more than 1 import statement. So it should look similar to import page_home_header.py import page_home_footer.py
+
+I do not like to nest or define functions, I would like page_.py files to feel linear and easy to understand and modify. 
+
+
+How would it all expand into chat interface page_chat.py.
+
