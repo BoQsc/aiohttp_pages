@@ -129,11 +129,6 @@ async def render_page(file_path, context):
 ###############################################
 
 async def handle_page(request):
-    """
-    Loads a page based on the URL. For example:
-      - "/" loads pages/page_home.py (default)
-      - "/about" loads pages/page_about.py
-    """
     # Determine the requested page (default is "home")
     page = request.match_info.get("page", "home")
     pages_dir = os.path.join(os.path.dirname(__file__), "pages")
@@ -146,6 +141,7 @@ async def handle_page(request):
     config = {"server_name": "My Python Server"}
     resources = Resources()
     context = {
+        "server_name": config["server_name"],  # Now available for direct access.
         "config": config,
         "routes": list_available_routes(),
         "resources": resources
