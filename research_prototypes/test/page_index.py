@@ -1,7 +1,7 @@
 print("""<html>
 <head><title>Home Page</title></head>
 <body>
-    <h1>Welcome to {{ context['server_name'] }}</h1>
+    <h1>Welcome to {{ context['config']['server_name'] }}</h1>
     
     <h2>Available Pages:</h2>
     <ul>""")
