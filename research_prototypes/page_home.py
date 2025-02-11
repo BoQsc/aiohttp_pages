@@ -14,7 +14,7 @@ for route in context['routes']:
 print("""</ul>
     
     <section>
-        {{  page_home_footer }}
+        {{  page_home_footer.py }}
     </section>
 </body>
 </html>""")

@@ -162,55 +162,66 @@ import os
 # Ensure BASE_DIR is defined globally.
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+import os
+
+# Assume BASE_DIR is defined as the server script's directory.
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
 async def process_template(template_str, env):
     """
     Processes template markers of the form {{ ... }}.
-
+    
     Special handling:
       - Markers starting with ".\\" are treated as file references relative to BASE_DIR.
       - Markers starting with "./" are treated as file references relative to the current page's directory.
-      - Markers starting with "..\\" are treated as file references (allowing upward traversal) relative to BASE_DIR.
-      - Markers starting with "../" are treated as file references (allowing upward traversal) relative to the current page's directory.
-
-    Any candidate file found is processed via render_page() and recursively scanned for template markers.
-    Otherwise, markers are evaluated as Python expressions (with a fallback include for bare identifiers).
+      - Markers starting with "..\\" or "../" allow upward traversal (relative to BASE_DIR or the current page dir).
+      - Markers that simply end with ".py" (for example, "page_home_footer.py")
+        are treated as file references relative to the current page's directory.
+      - Otherwise, the marker is evaluated as a Python expression (with a fallback to include a file if a bare identifier is missing).
     """
     import re
     pattern = re.compile(r"\{\{\s*(.*?)\s*\}\}", re.DOTALL)
-
+    
     async def repl(match):
         code = match.group(1).strip()
-        candidate = None  # This will hold the absolute path if we detect a file reference.
-        relative_path = None
-
-        # Check for file-reference markers:
+        candidate = None  # Candidate file's absolute path
+        relative_path = None  # The provided file reference (if any)
+    
+        # -- Special file-reference markers with explicit prefixes --
         if code.startswith(".\\"):
-            # e.g. ".\pages\page_home_footer" -> relative to BASE_DIR.
+            # Example: ".\pages\page_home_footer"
             relative_path = code[2:]
             base = BASE_DIR
             candidate = os.path.abspath(os.path.join(base, relative_path))
         elif code.startswith("./"):
-            # e.g. "./page_home_footer" -> relative to the current page directory.
+            # Example: "./page_home_footer"
             relative_path = code[2:]
             base = env.get("__page_dir__", BASE_DIR)
             candidate = os.path.abspath(os.path.join(base, relative_path))
         elif code.startswith("..\\"):
-            # e.g. "..\subfolder\somefile" -> relative to BASE_DIR (allowing upward traversal)
+            # Example: "..\subfolder\somefile"
             relative_path = code  # Keep the "..\\" in the path.
             base = BASE_DIR
             candidate = os.path.abspath(os.path.join(base, relative_path))
         elif code.startswith("../"):
-            # e.g. "../subfolder/somefile" -> relative to current page directory (allowing upward traversal)
+            # Example: "../subfolder/somefile"
             relative_path = code  # Keep the "../" in the path.
             base = env.get("__page_dir__", BASE_DIR)
             candidate = os.path.abspath(os.path.join(base, relative_path))
-        
-        # If candidate was set by one of the above rules, try to include that file.
+        # -- New branch: if the marker ends with ".py", treat it as a file include --
+        elif code.endswith(".py"):
+            # For example: "page_home_footer.py"
+            relative_path = code  # Use the marker text as the relative file name.
+            base = env.get("__page_dir__", BASE_DIR)
+            candidate = os.path.abspath(os.path.join(base, relative_path))
+    
+        # If a candidate file was determined via any of the above file-reference rules,
+        # attempt to include and render that file.
         if candidate is not None:
-            # Security check: Ensure the candidate is within BASE_DIR.
+            # Security check: Ensure candidate is within BASE_DIR.
             if candidate.startswith(BASE_DIR) and os.path.exists(candidate):
                 try:
-                    # Use render_page() to process the file.
+                    # Assume render_page() takes (file_path, context) and returns (output, env)
                     sub_output, sub_env = await render_page(candidate, env["context"])
                     # Recursively process any template markers in the included file.
                     return await process_template(sub_output, sub_env)
@@ -218,8 +229,8 @@ async def process_template(template_str, env):
                     return f"[Error including file '{relative_path}': {e}]"
             else:
                 return f"[Error: File '{relative_path}' not found or access denied]"
-
-        # Otherwise, treat the marker as a Python expression.
+    
+        # -- Otherwise, treat the marker as a Python expression --
         try:
             if code.startswith("await "):
                 expr = code[6:].strip()
@@ -240,8 +251,9 @@ async def process_template(template_str, env):
                 result = f"[Error: {ne}]"
         except Exception as e:
             result = f"[Error: {e}]"
+    
         return str(result)
-
+    
     parts = []
     last = 0
     for m in pattern.finditer(template_str):
