@@ -18,7 +18,6 @@ print("""</ul>
     <section>
         {{  page_home_footer }}
     </section>
-    {{ for file in await context.resources.list_content('docs/') }}
 </body>
 </html>""")
 
@@ -32,6 +31,10 @@ public_ip = await context.resources.get_public_ip()
 # In page script
 routes = await context.resources.list_routes()
 
+def list_content_current_files():
+    for file in await context.resources.list_content():
+        print(f'<li><a href="/{file}">{file}</a></li>')
+
 
 # Example page script (about.py)
 print("""<h1>About Us</h1>
@@ -41,10 +44,6 @@ print("""<h1>About Us</h1>
 <h2>Available Content:</h2>
 """)
 
-
-def list_content_current_files():
-    for file in await context.resources.list_content():
-        print(f'<li><a href="/{file}">{file}</a></li>')
 print("""
 <ul>
     {{ list_content_current_files() }}
