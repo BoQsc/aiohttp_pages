@@ -39,7 +39,12 @@ print("""<h1>About Us</h1>
 <h2>Available Content:</h2>
 """)
 
-print("<ul>")
-for file in await context.resources.list_content():
-    print(f'<li><a href="/{file}">{file}</a></li>')
-print("</ul>")
+
+def list_content_current_files():
+    for file in await context.resources.list_content():
+        print(f'<li><a href="/{file}">{file}</a></li>')
+print("""
+<ul>
+    {{ list_content_current_files() }}
+</ul>
+""")
