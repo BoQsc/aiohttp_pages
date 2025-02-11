@@ -11,6 +11,8 @@ print("""<html>
 for route in context['routes']:
     print(f'<li><a href="/{route}">{route}</a></li>')
 
+
+# importing pages or parts
 print("""</ul>
     
     <section>
